@@ -1,0 +1,31 @@
+---
+- name: Remove main vhost file for each disabled vhost [1/4]
+  become: true
+  become_method: sudo
+  file:
+    path: "/etc/httpd/vhosts.d/{{ item.url }}.conf"
+    state: absent
+  with_items: "{{ httpd_vhosts_disabled }}"
+  notify:
+    - Reload httpd
+
+- name: Remove ssl vhost include for each disabled vhost [2/4]
+  become: true
+  become_method: sudo
+  file:
+    path: "/etc/httpd/vhosts.d/{{ item.url }}-ssl.conf"
+    state: absent
+  with_items: "{{ httpd_vhosts_disabled }}"
+  notify:
+    - Reload httpd
+
+- name: Remove vhost include for each disabled vhost [3/4]
+  become: true
+  become_method: sudo
+  file:
+    path: "/etc/httpd/vhosts.d/includes/{{ item.url }}.conf"
+    state: absent
+  with_items: "{{ httpd_vhosts_disabled }}"
+  notify:
+    - Reload httpd
+...

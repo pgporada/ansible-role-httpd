@@ -1,0 +1,55 @@
+---
+httpd_user: apache
+httpd_group: apache
+httpd_version: 2.4
+
+# Default CentOS7 non-threaded MPM
+httpd_conf_mpm: prefork
+httpd_conf_docrootdir: "/var/www/domains"
+httpd_conf_port: 80
+httpd_conf_port_ssl: 443
+
+httpd_conf_servertokens: prod
+httpd_conf_securecookies: false
+httpd_conf_keepalive_enabled: true
+httpd_conf_keepalive_timeout: "20"
+
+httpd_is_behind_loadbalancer: false
+
+httpd_vhosts_enabled: []
+#  - url: jenkins.philporada.com
+#    enable_ssl_vhost: false
+#    path_to_ssl_ca: /path/to/ca.pem
+#    path_to_ssl_cert: /path/to/cert.pem
+#    path_to_ssl_key: /path/to/key.pem
+#    path_to_ssl_chain: /path/to/bundle.pem
+#    aliases:
+#      - philporada.com
+#    serveradmin: ops@philporada.com
+#    errorlog: "/var/log/httpd/error_log"
+#    accesslog: "/var/log/httpd/access_log"
+#    directory: "/var/www/app"
+#    docrootdir: public_html
+#    use_default_index_page: true
+#    mod_authz_host_settings: |
+#      Require all denied
+#      Require ip 216.109.198.154
+#    extra_parameters_main: |
+#      #
+#      #RewriteEngine On
+#      # Rewrites requests from the ELB to https
+#      # We want to match on http specifically instead of the negative, !https, due to healthchecks failing at the 301 redirect
+#      #RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
+#      #RewriteRule ^.*$ https://%{SERVER_NAME}%{REQUEST_URI}
+#    extra_parameters_include: |
+#      #
+#      # This is vagrant specific
+#      #EnableSendfile Off
+#      # Hide git related stuff
+#      RewriteRule ^(.*/)?\.git+ - [R=404,L]
+#      RewriteRule ^(.*/)?\.gitignore+ - [R=404,L]
+
+httpd_vhosts_disabled: []
+#  - url: disabledsite1.philporada.com
+#  - url: disabledsite2.philporada.com
+...

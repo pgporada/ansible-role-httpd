@@ -1,0 +1,8 @@
+<VirtualHost *:{{ httpd_conf_port }}>
+
+{% if item.extra_parameters_main is defined%}
+  	{{ item.extra_parameters_main }}
+{% endif %}
+
+    Include vhosts.d/includes/{{item.url}}.conf
+</VirtualHost>

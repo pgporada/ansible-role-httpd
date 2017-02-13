@@ -1,0 +1,6 @@
+---
+#- src: git@gitlab.com:pgporada-dltcode/ansible-role-repo-epel.git
+#  scm: git
+#  name: pgporada.repo-epel
+#  version: v1.3.0
+...

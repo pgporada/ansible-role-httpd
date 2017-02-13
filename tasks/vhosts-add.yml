@@ -1,0 +1,81 @@
+---
+- name: Fix permissions on docrootdir
+  become: true
+  become_method: sudo
+  file:
+    path: "{{ item.directory }}/{{ item.docrootdir }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  with_items: "{{ httpd_vhosts_enabled }}"
+
+- name: Ensure main vhost file exists for each enabled vhost
+  become: true
+  become_method: sudo
+  template:
+    src: etc/httpd/vhosts.d/vhost-main.conf.j2
+    dest: "/etc/httpd/vhosts.d/{{ item.url }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+  with_items: "{{ httpd_vhosts_enabled }}"
+  notify:
+    - Reload httpd
+
+- name: Ensure ssl vhost file exists for each enabled vhost
+  become: true
+  become_method: sudo
+  template:
+    src: etc/httpd/vhosts.d/vhost-ssl.conf.j2
+    dest: "/etc/httpd/vhosts.d/{{ item.url }}-ssl.conf"
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+  with_items: "{{ httpd_vhosts_enabled }}"
+  when: "{{ item.enable_ssl_vhost }} is defined and {{ item.enable_ssl_vhost }}"
+  notify:
+    - Reload httpd
+
+- name: Ensure vhost include exists for each enabled vhost
+  become: true
+  become_method: sudo
+  template:
+    src: etc/httpd/vhosts.d/includes/vhost-include.conf.j2
+    dest: "/etc/httpd/vhosts.d/includes/{{ item.url }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+  with_items: "{{ httpd_vhosts_enabled }}"
+  notify:
+    - Reload httpd
+
+- name: Ensure default index.html page is deployed
+  become: true
+  become_method: sudo
+  copy:
+    src: public/index.html
+    dest: "{{ item.directory }}/{{ item.docrootdir }}/index.html"
+    owner: "{{ httpd_user }}"
+    group: "{{ httpd_group }}"
+    mode: 0644
+  with_items: "{{ httpd_vhosts_enabled }}"
+  when: "{{ item.use_default_index_page }} is defined and {{ item.use_default_index_page }}"
+
+- name: Check configuration
+  become: true
+  become_method: sudo
+  shell: apachectl -t
+  register: httpd_check
+  changed_when: "httpd_check.rc != 0"
+  failed_when: "'Syntax OK' not in httpd_check.stderr"
+  tags:
+    - skip_ansible_lint
+
+- name: Output check configuration
+  debug:
+    msg: "{{ httpd_check }}"
+...

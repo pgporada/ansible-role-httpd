@@ -1,0 +1,157 @@
+---
+- name: Ensure packages are installed
+  become: true
+  become_method: sudo
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "httpd-{{ httpd_version }}.*"
+    - mod_ssl
+    - httpd-tools
+    - python-passlib
+    - python-pip
+    - bcrypt
+    - libselinux-python
+    - policycoreutils-python
+
+- name: Install pip module(s) for htpasswd
+  pip:
+    name: bcrypt
+    state: present
+
+- name: Ensure httpd is enabled
+  become: true
+  become_method: sudo
+  service:
+    name: httpd
+    enabled: yes
+
+- name: Reconfigure httpd.conf
+  become: true
+  become_method: sudo
+  template:
+    src: etc/httpd/conf/httpd.conf.j2
+    dest: /etc/httpd/conf/httpd.conf
+    force: yes
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Restart httpd
+
+- name: Ensure default document root exists
+  become: true
+  become_method: sudo
+  file:
+    path: "{{ httpd_conf_docrootdir }}"
+    state: directory
+    mode: 0755
+    owner: "{{ httpd_user }}"
+    group: "{{ httpd_group }}"
+
+- name: Ensure application document root exists
+  become: true
+  become_method: sudo
+  shell: "mkdir -p {{ item.directory }}/{{ item.docrootdir }}"
+  register: "mkdir_result"
+  with_items: "{{ httpd_vhosts_enabled }}"
+  changed_when: "mkdir_result.rc != 0"
+  failed_when: "mkdir_result.rc != 0"
+
+- name: Generate /etc/httpd/conf.d/ templates, reload only
+  become: true
+  become_method: sudo
+  template:
+    src: "etc/httpd/conf.d/{{ item.src }}"
+    dest: "/etc/httpd/conf.d/{{ item.dest }}"
+    force: yes
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - {src: 'ssl.conf.j2', dest: 'ssl.conf'}
+    - {src: 'vhosts.conf.j2', dest: 'vhosts.conf'}
+  notify:
+    - Reload httpd
+
+- name: Generate /etc/httpd/conf.modules.d/ templates, restart only
+  become: true
+  become_method: sudo
+  template:
+    src: "etc/httpd/conf.modules.d/{{ item.src }}"
+    dest: "/etc/httpd/conf.modules.d/{{ item.dest }}"
+    force: yes
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - {src: '00-mpm.conf.j2', dest: '00-mpm.conf'}
+  notify:
+    - Restart httpd
+
+- name: Output warning if using threaded MPM
+  vars:
+    threaded_mpm_warning: |
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      WARNING WARNING WARNING WARNING WARNING WA
+      You are using a threaded MPM. You cannot
+      use mod_php with a threaded MPM. You must
+      use php_fpm instead.
+      WARNING WARNING WARNING WARNING WARNING WA
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  debug:
+    msg: "{{ threaded_mpm_warning.split('\n') }}"
+  when: httpd_conf_mpm != "prefork"
+
+- name: Httpd is behind a loadbalancer and requires a customer logger to get the source IP
+  become: true
+  become_method: sudo
+  copy:
+    src: etc/httpd/conf.d/custom_logger.conf
+    dest: /etc/httpd/conf.d/custom_logger.conf
+    force: yes
+    owner: root
+    group: root
+    mode: 0644
+  when: httpd_is_behind_loadbalancer is defined and httpd_is_behind_loadbalancer
+  notify:
+    - Reload httpd
+
+- name: Clean up unused /etc/httpd/conf.d/ files
+  become: true
+  become_method: sudo
+  file:
+    path: /etc/httpd/conf.d/welcome.conf
+    state: absent
+  notify:
+    - Reload httpd
+
+- name: Ensure /etc/httpd/vhosts.d dir exists
+  become: true
+  become_method: sudo
+  file:
+    path: /etc/httpd/vhosts.d
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+    seuser: system_u
+    serole: object_r
+    setype: httpd_config_t
+    selevel: s0
+
+- name: Ensure /etc/httpd/vhosts.d/includes dir exists
+  become: true
+  become_method: sudo
+  file:
+    path: /etc/httpd/vhosts.d/includes
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+    seuser: system_u
+    serole: object_r
+    setype: httpd_config_t
+    selevel: s0
+...

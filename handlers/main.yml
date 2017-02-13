@@ -1,0 +1,15 @@
+---
+- name: Restart httpd
+  become: true
+  become_method: sudo
+  service:
+    name: httpd
+    state: restarted
+
+- name: Reload httpd
+  become: true
+  become_method: sudo
+  service:
+    name: httpd
+    state: reloaded
+...

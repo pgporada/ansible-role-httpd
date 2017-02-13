@@ -1,0 +1,44 @@
+{% if item.url is defined %}
+ServerName {{item.url}}
+{% endif %}
+
+{% if item.aliases|default([]) %}
+ServerAlias {% for alias in item.aliases %}{{alias}}{% endfor %}
+{% endif %}
+
+{% if item.errorlog is defined %}
+ErrorLog {{item.errorlog}}
+{% endif %}
+
+{% if item.accesslog is defined %}
+CustomLog {{item.accesslog}} combined
+{% endif %}
+
+{% if item.directory is defined %}
+DocumentRoot {{item.directory}}{% if item.docrootdir is defined %}/{{item.docrootdir}}{% endif %}
+{% endif %}
+
+{% if item.httpd_environment is defined and item.httpd_environment == "vagrant" %}
+# This is vagrant specific
+EnableSendfile Off
+{% endif %}
+
+{% if item.directory is defined %}
+<Directory "{{item.directory}}{% if item.docrootdir is defined %}/{{item.docrootdir}}{% endif %}">
+    AllowOverride All
+    Options -Indexes -FollowSymLinks -Includes
+    DirectoryIndex index.html index.php
+{% if httpd_version == 2.2 %}
+    Order allow,deny
+    Allow from all
+{% elif item.mod_authz_host_settings is defined %}
+    {{ item.mod_authz_host_settings }}
+{% else %}
+    Require all granted
+{% endif %}
+</Directory>
+{% endif %}
+
+{% if item.extra_parameters_include is defined%}
+  	{{ item.extra_parameters_include }}
+{% endif %}

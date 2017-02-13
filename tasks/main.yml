@@ -1,0 +1,12 @@
+---
+- include: install.yml
+- include: vhosts-add.yml
+- include: vhosts-remove.yml
+
+- name: Ensure httpd is running
+  become: true
+  become_method: sudo
+  service:
+    name: httpd
+    state: started
+...
