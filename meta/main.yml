@@ -13,6 +13,12 @@ galaxy_info:
     - name: Fedora
       versions:
         - all
+  galaxy_tags:
+    - apache
+    - httpd
+    - vhost
+    - htpasswd
+    - webserver
 
 dependencies:
   - {role: pgporada.repo-epel}
