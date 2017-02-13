@@ -1,5 +1,5 @@
 # Overview: ansible-role-httpd
-This role will set up httpd (Apache), configure any vhosts you've defined, and setup any rewrite/redirect rules.
+This role will set up httpd (Apache), configure any vhosts you've defined, and setup any rewrite/redirect rules. I configure my vhosts in a way that senior admins had taught me when I worked in a datacenter. I've since continued to follow this method for my career. This setup is opinionated. You may not agree.
 
 - - - -
 
