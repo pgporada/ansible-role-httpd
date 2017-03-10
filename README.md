@@ -77,7 +77,19 @@ Use mod_headers to set httponly and secure on all cookies. There are implication
 
 # How to hack away at this role
 
-Set up test-kitchen dependencies
+Prior to running any tests, you should validate your syntax with [yamllint](https://github.com/adrienverge/yamllint).
+
+    find . -type f -name "*.yml*" | sed "s|\./||g" | egrep -v "(\.kitchen/|\[warning\]|\.molecule/)" | xargs yamllint -f parsable
+
+You should see output such as the following which you can take manual action on, or simply ignore. You can easily see we did find an error though. The error would probably prevented ansible from running to completion. Spotting these is a GOOD THING.
+
+    $ find . -type f -name "*.yml*" | sed "s|\./||g" | egrep -v "(\.kitchen/|\[warning\]|\.molecule/)" | xargs yamllint -f parsable
+    defaults/main.yml:41:121: [warning] line too long (127 > 120 characters) (line-length)
+    meta/main.yml:7:22: [error] syntax error: mapping values are not allowed here
+    test/integration/default/default.yml:4:1: [warning] comment not indented like content (comments-indentation)
+    test/requirements.yml:2:2: [warning] missing starting space in comment (comments)
+
+You will need a ruby environment to install the gems for [test-kitchen](http://kitchen.ci/). We install the gems through [bundler](https://bundler.io/).
 
     git clone git@github.com:pgporada/ansible-role-httpd.git
     bundle install
