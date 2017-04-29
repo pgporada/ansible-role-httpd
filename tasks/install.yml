@@ -25,7 +25,7 @@
   become_method: sudo
   service:
     name: httpd
-    enabled: yes
+    enabled: "yes"
 
 - name: Reconfigure httpd.conf
   become: true
@@ -33,7 +33,7 @@
   template:
     src: etc/httpd/conf/httpd.conf.j2
     dest: /etc/httpd/conf/httpd.conf
-    force: yes
+    force: "yes"
     owner: root
     group: root
     mode: 0644
@@ -65,7 +65,7 @@
   template:
     src: "etc/httpd/conf.d/{{ item.src }}"
     dest: "/etc/httpd/conf.d/{{ item.dest }}"
-    force: yes
+    force: "yes"
     owner: root
     group: root
     mode: 0644
@@ -81,7 +81,7 @@
   template:
     src: "etc/httpd/conf.modules.d/{{ item.src }}"
     dest: "/etc/httpd/conf.modules.d/{{ item.dest }}"
-    force: yes
+    force: "yes"
     owner: root
     group: root
     mode: 0644
@@ -110,7 +110,7 @@
   copy:
     src: etc/httpd/conf.d/custom_logger.conf
     dest: /etc/httpd/conf.d/custom_logger.conf
-    force: yes
+    force: "yes"
     owner: root
     group: root
     mode: 0644

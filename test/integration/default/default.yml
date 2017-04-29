@@ -1,9 +1,5 @@
 ---
 - hosts: test-kitchen
-
-#  vars:
-#    mykey: myval
-
   roles:
     - ansible-role-httpd
 ...
