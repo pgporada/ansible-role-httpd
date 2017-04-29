@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
-@test "Ensure wget is installed" {
-    run rpm -q wget
+@test "Ensure htt[d is installed" {
+    run rpm -q httpd
     [ "$status" -eq 0 ]
 }
 

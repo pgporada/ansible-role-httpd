@@ -35,7 +35,7 @@
     mode: 0644
     force: "yes"
   with_items: "{{ httpd_vhosts_enabled }}"
-  when: "{{ item.enable_ssl_vhost }} is defined and {{ item.enable_ssl_vhost }}"
+  when: item.enable_ssl_vhost is defined and item.enable_ssl_vhost
   notify:
     - Reload httpd
 
@@ -63,7 +63,7 @@
     group: "{{ httpd_group }}"
     mode: 0644
   with_items: "{{ httpd_vhosts_enabled }}"
-  when: "{{ item.use_default_index_page }} is defined and {{ item.use_default_index_page }}"
+  when: item.use_default_index_page is defined and item.use_default_index_page
 
 - name: Check configuration
   become: true
