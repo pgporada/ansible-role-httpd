@@ -56,6 +56,7 @@
   shell: "mkdir -p {{ item.directory }}/{{ item.docrootdir }}"
   register: "mkdir_result"
   with_items: "{{ httpd_vhosts_enabled }}"
+  when: item.directory is defined and item.docrootdir is defined
   changed_when: "mkdir_result.rc != 0"
   failed_when: "mkdir_result.rc != 0"
 
